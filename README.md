@@ -12,3 +12,5 @@ SAI receive begin OK<br>
 Copying Record buffer to Playback buffer<br>
 Audio output OK<br>
 <br>
+Line level input is expected, not speaker level so turn your volume down at least to 50% or lower<br>
+<br>
