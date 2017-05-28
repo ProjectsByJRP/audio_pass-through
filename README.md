@@ -14,3 +14,4 @@ Audio output OK<br>
 <br>
 Line level input is expected, not speaker level so turn your volume down at least to 50% or lower<br>
 <br>
+I have not tested microphone input or speaker output<br>
