@@ -4,3 +4,11 @@ This software builds heavily on the great work by https://community.st.com/peopl
 wm8994.c is modified from the BSP version<br>
 Input Mixer L and R zeroed and muted registers 0x29 and 0x2A<br>
 SW4STM32 project using STM32 HAL<br>
+Output on serial port looks like<br>
+Connected to STM32F769I-Discovery USART 1<br>
+<br>
+Audio I/O initialization OK<br>
+SAI receive begin OK<br>
+Copying Record buffer to Playback buffer<br>
+Audio output OK<br>
+<br>
