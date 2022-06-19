@@ -15,11 +15,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f6ef50a7-8938-4f73-a78c-14063006e67c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/OCD_audio_loopback.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Core/Src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Src/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Core/Src/sai.c" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Src/sai.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/audio_loopback.ioc" beforeDir="false" afterPath="$PROJECT_DIR$/audio_loopback.ioc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,12 +83,20 @@
       <option name="project" value="LOCAL" />
       <updated>1655673030704</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Enable caching!">
+      <created>1655675491653</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1655675491653</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial port to STM32H735G-DK" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial port to STM32H735G-DK" />
+    <MESSAGE value="Enable caching!" />
+    <option name="LAST_COMMIT_MESSAGE" value="Enable caching!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
