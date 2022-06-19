@@ -80,6 +80,7 @@ int16_t PlaybackBuffer[AUDIO_BUFFER_SIZE];
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MPU_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -130,8 +131,19 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+/* TODO why the heck cache works without invalidation, will it get broken at some point?
+ * Check on MCU datasheet
+ */
   /* USER CODE END 1 */
+
+  /* MPU Configuration----------------------------------------------------------*/
+  MPU_Config();
+
+  /* Enable I-Cache-------------------------------------------------------------*/
+  SCB_EnableICache();
+
+  /* Enable D-Cache-------------------------------------------------------------*/
+  SCB_EnableDCache();
 
   /* MCU Configuration----------------------------------------------------------*/
 
@@ -175,9 +187,9 @@ int main(void)
     printf("SAI receive start OK\r\n");
 
     /* Initialize Audio Recorder with 4 channels to be used */
-    if ((wm8994_drv.ReadID(AUDIO_I2C_ADDRESS)) == WM8994_ID) {
+    if ((wm8994_ReadID(AUDIO_I2C_ADDRESS)) == CODEC_WM8994_ID) {
         /* Reset the Codec Registers */
-        wm8994_drv.Reset(AUDIO_I2C_ADDRESS);
+        wm8994_Reset(AUDIO_I2C_ADDRESS);
         /* Initialize the audio driver structure */
         printf("Audio codec initialization OK\r\n");
     } else {
@@ -186,11 +198,11 @@ int main(void)
     }
 
     /* Initialize the codec internal registers */
-    wm8994_drv.Init(AUDIO_I2C_ADDRESS,
-                    INPUT_DEVICE_INPUT_LINE_1 | OUTPUT_DEVICE_HEADPHONE, 100, SAI_AUDIO_FREQUENCY_44K);
+    wm8994_Init(AUDIO_I2C_ADDRESS,
+                CODEC_IN_LINE_1 | CODEC_OUT_HEADPHONE, 100, SAI_AUDIO_FREQUENCY_44K);
 
     /* Play the recorded buffer */
-    if (wm8994_drv.Play(AUDIO_I2C_ADDRESS, (uint16_t *) PlaybackBuffer, AUDIO_BUFFER_SIZE) != 0) {
+    if (wm8994_Play(AUDIO_I2C_ADDRESS) != 0) {
         printf("Codec play error\r\n");
         Error_Handler();
     } else {
@@ -324,9 +336,39 @@ void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai) {
 }
 
 void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai) {
+    Error_Handler();
 }
 
 /* USER CODE END 4 */
+
+/* MPU Configuration */
+
+void MPU_Config(void)
+{
+  MPU_Region_InitTypeDef MPU_InitStruct;
+
+  /* Disables the MPU */
+  HAL_MPU_Disable();
+    /**Initializes and configures the Region and the memory to be protected
+    */
+  MPU_InitStruct.Enable = MPU_REGION_ENABLE;
+  MPU_InitStruct.Number = MPU_REGION_NUMBER0;
+  MPU_InitStruct.BaseAddress = 0x20000000;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_512KB;
+  MPU_InitStruct.SubRegionDisable = 0x0;
+  MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
+  MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
+  MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_ENABLE;
+  MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;
+  MPU_InitStruct.IsCacheable = MPU_ACCESS_CACHEABLE;
+  MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
+
+  HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
+  /* Enables the MPU */
+  HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
+
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
