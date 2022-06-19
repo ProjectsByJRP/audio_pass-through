@@ -5,11 +5,11 @@
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
+  * USER CODE END. Other portions of this file, whether
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2022 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -38,7 +38,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f7xx_hal.h"
-#include "dfsdm.h"
+#include "dma.h"
+#include "i2c.h"
 #include "sai.h"
 #include "usart.h"
 #include "gpio.h"
@@ -49,7 +50,6 @@
  **/
 
 
-#include "stm32f769i_discovery.h"
 #include "stm32f769i_discovery_audio.h"
 #include <string.h>
 
@@ -136,19 +136,14 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
+  MX_I2C4_Init();
   MX_SAI1_Init();
-  MX_DFSDM1_Init();
 
   /* USER CODE BEGIN 2 */
-  BSP_LED_Init(LED_GREEN);
-  BSP_LED_On(LED_GREEN);
-
   printf("Connected to STM32F769I-Discovery USART 1\r\n");
   printf("\r\n");
-
-//  BSP_AUDIO_IN_Init(BSP_AUDIO_FREQUENCY_44K, DEFAULT_AUDIO_IN_BIT_RESOLUTION, DEFAULT_AUDIO_IN_CHANNEL_NBR);
-//  BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_HEADPHONE, 50, BSP_AUDIO_FREQUENCY_44K);
 
     {
         int16_t amp[4];
@@ -184,7 +179,8 @@ int main(void)
         audio_rec_buffer_state = BUFFER_OFFSET_NONE;
         while (1)
         {
-            BSP_LED_Toggle(LED_GREEN);
+            HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+
             /* 1st or 2nd half of the record buffer ready for being copied
             to the Playback buffer */
             if (audio_rec_buffer_state != BUFFER_OFFSET_NONE)
@@ -217,7 +213,7 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-	  /* we'll never get this far because of the while(1) in AUDIO_LOOPBACK() */
+
   /* USER CODE BEGIN 3 */
 
   }
@@ -234,13 +230,13 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
-    /**Configure the main internal regulator output voltage 
+    /**Configure the main internal regulator output voltage
     */
   __HAL_RCC_PWR_CLK_ENABLE();
 
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -255,14 +251,14 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Activate the Over-Drive mode 
+    /**Activate the Over-Drive mode
     */
   if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -276,27 +272,27 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_DFSDM1|RCC_PERIPHCLK_USART1
-                              |RCC_PERIPHCLK_SAI1;
-  PeriphClkInitStruct.PLLSAI.PLLSAIN = 192;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_SAI1
+                              |RCC_PERIPHCLK_I2C4;
+  PeriphClkInitStruct.PLLSAI.PLLSAIN = 200;
   PeriphClkInitStruct.PLLSAI.PLLSAIR = 2;
-  PeriphClkInitStruct.PLLSAI.PLLSAIQ = 3;
+  PeriphClkInitStruct.PLLSAI.PLLSAIQ = 4;
   PeriphClkInitStruct.PLLSAI.PLLSAIP = RCC_PLLSAIP_DIV2;
   PeriphClkInitStruct.PLLSAIDivQ = 1;
   PeriphClkInitStruct.PLLSAIDivR = RCC_PLLSAIDIVR_2;
   PeriphClkInitStruct.Sai1ClockSelection = RCC_SAI1CLKSOURCE_PLLSAI;
   PeriphClkInitStruct.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
-  PeriphClkInitStruct.Dfsdm1ClockSelection = RCC_DFSDM1CLKSOURCE_PCLK;
+  PeriphClkInitStruct.I2c4ClockSelection = RCC_I2C4CLKSOURCE_PCLK1;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure the Systick interrupt time 
+    /**Configure the Systick interrupt time
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
-    /**Configure the Systick 
+    /**Configure the Systick
     */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
@@ -381,7 +377,7 @@ void SystemClock_Config(void)
        * @param None
        * @retval None
        */
-     void BSP_AUDIO_IN_TransferComplete_CallBack(void)
+     void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai)
      {
          audio_rec_buffer_state = BUFFER_OFFSET_FULL;
      }
@@ -392,38 +388,45 @@ void SystemClock_Config(void)
        * @param  None
        * @retval None
        */
-     void BSP_AUDIO_IN_HalfTransfer_CallBack(void)
+     void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai)
      {
          audio_rec_buffer_state = BUFFER_OFFSET_HALF;
      }
 
 
-     /**
-       * @brief  Audio IN Error callback function.
-       * @param  None
-       * @retval None
-       */
-     void BSP_AUDIO_IN_Error_CallBack(void)
-     {
-         /* This function is called when an Interrupt due to transfer error on or peripheral
-            error occurs. */
-         /* Display message on the LCD screen */
-         //BSP_LCD_SetBackColor(LCD_COLOR_RED);
-         //BSP_LCD_DisplayStringAt(0, LINE(14), (uint8_t *)"       DMA  ERROR     ", CENTER_MODE);
+/**
+  * @brief  SAI error callbacks.
+  * @param  hsai: SAI handle
+  * @retval None
+  */
+void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai)
+{
+    if(hsai->Instance == AUDIO_OUT_SAIx)
+    {
+//  BSP_AUDIO_OUT_Error_CallBack();
+    }
+    else
+    {
+        /* This function is called when an Interrupt due to transfer error on or peripheral
+           error occurs. */
+        /* Display message on the LCD screen */
+        //BSP_LCD_SetBackColor(LCD_COLOR_RED);
+        //BSP_LCD_DisplayStringAt(0, LINE(14), (uint8_t *)"       DMA  ERROR     ", CENTER_MODE);
 
 
-         /* Stop the program with an infinite loop */
+        /* Stop the program with an infinite loop */
 
-    	 /*
-         while (BSP_PB_GetState(BUTTON_WAKEUP) != RESET)
-         {
-             return;
-         }
-         */
+        /*
+        while (BSP_PB_GetState(BUTTON_WAKEUP) != RESET)
+        {
+            return;
+        }
+        */
 
-         /* could also generate a system reset to recover from the error */
-         /* .... */
-     }
+        /* could also generate a system reset to recover from the error */
+        /* .... */
+    }
+}
 
 
  /**
@@ -547,32 +550,6 @@ void SystemClock_Config(void)
      static void SAI_AUDIO_IN_MspInit(SAI_HandleTypeDef *hsai, void *Params)
      {
          static DMA_HandleTypeDef hdma_sai_rx;
-         GPIO_InitTypeDef  gpio_init_structure;
-
-         /* Enable SAI clock */
-         AUDIO_IN_SAIx_CLK_ENABLE();
-
-         /* Enable SD GPIO clock */
-         AUDIO_IN_SAIx_SD_ENABLE();
-         /* CODEC_SAI pin configuration: SD pin */
-         gpio_init_structure.Pin = AUDIO_IN_SAIx_SD_PIN;
-         gpio_init_structure.Mode = GPIO_MODE_AF_PP;
-         gpio_init_structure.Pull = GPIO_NOPULL;
-         gpio_init_structure.Speed = GPIO_SPEED_FAST;
-         gpio_init_structure.Alternate = AUDIO_IN_SAIx_AF;
-         HAL_GPIO_Init(AUDIO_IN_SAIx_SD_GPIO_PORT, &gpio_init_structure);
-
-         /* Enable Audio INT GPIO clock */
-         AUDIO_IN_INT_GPIO_ENABLE();
-         /* Audio INT pin configuration: input */
-         gpio_init_structure.Pin = AUDIO_IN_INT_GPIO_PIN;
-         gpio_init_structure.Mode = GPIO_MODE_INPUT;
-         gpio_init_structure.Pull = GPIO_NOPULL;
-         gpio_init_structure.Speed = GPIO_SPEED_FAST;
-         HAL_GPIO_Init(AUDIO_IN_INT_GPIO_PORT, &gpio_init_structure);
-
-         /* Enable the DMA clock */
-         AUDIO_IN_SAIx_DMAx_CLK_ENABLE();
 
          if (hsai->Instance == AUDIO_IN_SAIx)
          {
@@ -606,9 +583,6 @@ void SystemClock_Config(void)
          HAL_NVIC_SetPriority(AUDIO_IN_SAIx_DMAx_IRQ, AUDIO_IN_IRQ_PREPRIO, 0);
          HAL_NVIC_EnableIRQ(AUDIO_IN_SAIx_DMAx_IRQ);
 
-         /* Audio INT IRQ Channel configuration */
-         HAL_NVIC_SetPriority(AUDIO_IN_INT_IRQ, AUDIO_IN_IRQ_PREPRIO, 0);
-         HAL_NVIC_EnableIRQ(AUDIO_IN_INT_IRQ);
      }
 
 
@@ -689,7 +663,7 @@ void _Error_Handler(char * file, int line)
   while(1) 
   {
   }
-  /* USER CODE END Error_Handler_Debug */ 
+  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef USE_FULL_ASSERT
@@ -714,10 +688,10 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-*/ 
+*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -47,8 +47,8 @@
 /* Includes ------------------------------------------------------------------*/
 /* Include audio component Driver */
 #include "../Components/wm8994/wm8994.h"
-#include "stm32f769i_discovery.h"
 #include <stdlib.h>
+#include <sai.h>
 
 /** @addtogroup BSP
   * @{
@@ -108,29 +108,11 @@
                                                        
 /* SAI peripheral configuration defines */
 #define AUDIO_OUT_SAIx                           SAI1_Block_A
-#define AUDIO_OUT_SAIx_CLK_ENABLE()              __HAL_RCC_SAI1_CLK_ENABLE()
-#define AUDIO_OUT_SAIx_CLK_DISABLE()             __HAL_RCC_SAI1_CLK_DISABLE()
-#define AUDIO_OUT_SAIx_AF                        GPIO_AF6_SAI1
-
-#define AUDIO_OUT_SAIx_MCLK_ENABLE()             __HAL_RCC_GPIOG_CLK_ENABLE()
-#define AUDIO_OUT_SAIx_MCLK_GPIO_PORT            GPIOG
-#define AUDIO_OUT_SAIx_MCLK_PIN                  GPIO_PIN_7
-#define AUDIO_OUT_SAIx_SD_FS_CLK_ENABLE()        __HAL_RCC_GPIOE_CLK_ENABLE()
-#define AUDIO_OUT_SAIx_SD_FS_SCK_GPIO_PORT       GPIOE
-#define AUDIO_OUT_SAIx_FS_PIN                    GPIO_PIN_4   
-#define AUDIO_OUT_SAIx_SCK_PIN                   GPIO_PIN_5
-#define AUDIO_OUT_SAIx_SD_PIN                    GPIO_PIN_6
-
-/* SAI DMA Stream definitions */
-#define AUDIO_OUT_SAIx_DMAx_CLK_ENABLE()         __HAL_RCC_DMA2_CLK_ENABLE()
 #define AUDIO_OUT_SAIx_DMAx_STREAM               DMA2_Stream1
 #define AUDIO_OUT_SAIx_DMAx_CHANNEL              DMA_CHANNEL_0
 #define AUDIO_OUT_SAIx_DMAx_IRQ                  DMA2_Stream1_IRQn
 #define AUDIO_OUT_SAIx_DMAx_PERIPH_DATA_SIZE     DMA_PDATAALIGN_HALFWORD
 #define AUDIO_OUT_SAIx_DMAx_MEM_DATA_SIZE        DMA_MDATAALIGN_HALFWORD
-#define DMA_MAX_SZE                              0xFFFF
-   
-#define AUDIO_OUT_SAIx_DMAx_IRQHandler           DMA2_Stream1_IRQHandler
 
 /* Select the interrupt preemption priority and subpriority for the DMA interrupt */
 #define AUDIO_OUT_IRQ_PREPRIO                    ((uint32_t)0x0E) 
@@ -139,29 +121,14 @@
                         AUDIO IN CONFIGURATION
 ------------------------------------------------------------------------------*/
 /* SAI peripheral configuration defines */
-#define AUDIO_IN_SAIx                           SAI1_Block_B
-#define AUDIO_IN_SAIx_CLK_ENABLE()              __HAL_RCC_SAI1_CLK_ENABLE()
-#define AUDIO_IN_SAIx_CLK_DISABLE()             __HAL_RCC_SAI1_CLK_DISABLE()
-#define AUDIO_IN_SAIx_AF                        GPIO_AF6_SAI1
-#define AUDIO_IN_SAIx_SD_ENABLE()               __HAL_RCC_GPIOE_CLK_ENABLE()
-#define AUDIO_IN_SAIx_SD_GPIO_PORT              GPIOE
-#define AUDIO_IN_SAIx_SD_PIN                    GPIO_PIN_3
-
-/* SAI DMA Stream definitions */
+#define AUDIO_IN_SAIx                           SAI1_Block_B/* SAI DMA Stream definitions */
 #define AUDIO_IN_SAIx_DMAx_CLK_ENABLE()         __HAL_RCC_DMA2_CLK_ENABLE()
 #define AUDIO_IN_SAIx_DMAx_STREAM               DMA2_Stream4
 #define AUDIO_IN_SAIx_DMAx_CHANNEL              DMA_CHANNEL_1
 #define AUDIO_IN_SAIx_DMAx_IRQ                  DMA2_Stream4_IRQn
 #define AUDIO_IN_SAIx_DMAx_PERIPH_DATA_SIZE     DMA_PDATAALIGN_HALFWORD
 #define AUDIO_IN_SAIx_DMAx_MEM_DATA_SIZE        DMA_MDATAALIGN_HALFWORD
-
-#define AUDIO_IN_INT_GPIO_ENABLE()               __HAL_RCC_GPIOJ_CLK_ENABLE()
-#define AUDIO_IN_INT_GPIO_PORT                   GPIOJ
-#define AUDIO_IN_INT_GPIO_PIN                    GPIO_PIN_12
-#define AUDIO_IN_INT_IRQ                         EXTI15_10_IRQn
- 
-/* Select the interrupt preemption priority and subpriority for the DMA interrupt */
-#define AUDIO_IN_IRQ_PREPRIO                ((uint32_t)0x0F)
+#define AUDIO_IN_IRQ_PREPRIO                    ((uint32_t)0x0E)
 
 
 /*------------------------------------------------------------------------------

@@ -4,7 +4,7 @@
   * @brief   This file contains the headers of the interrupt handlers.
   ******************************************************************************
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2022 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@
 
 #ifdef __cplusplus
  extern "C" {
-#endif 
+#endif
 
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
@@ -46,6 +46,8 @@
 /* Exported functions ------------------------------------------------------- */
 
 void SysTick_Handler(void);
+void DMA2_Stream0_IRQHandler(void);
+void DMA2_Stream1_IRQHandler(void);
 
 #ifdef __cplusplus
 }

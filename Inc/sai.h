@@ -6,11 +6,11 @@
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
+  * USER CODE END. Other portions of this file, whether
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2022 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -52,6 +52,7 @@
 /* USER CODE END Includes */
 
 extern SAI_HandleTypeDef hsai_BlockA1;
+extern SAI_HandleTypeDef hsai_BlockB1;
 
 /* USER CODE BEGIN Private defines */
 

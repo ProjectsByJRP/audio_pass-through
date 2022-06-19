@@ -43,29 +43,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 
-/** @addtogroup BSP
-  * @{
-  */ 
-
-/** @addtogroup Component
-  * @{
-  */ 
-  
-/** @addtogroup WM8994
-  * @{
-  */
-
-/** @defgroup WM8994_Exported_Types
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @defgroup WM8994_Exported_Constants
-  * @{
-  */ 
+#define AUDIO_I2C_ADDRESS                ((uint16_t)0x34)
 
 /******************************************************************************/
 /***************************  Codec User defines ******************************/

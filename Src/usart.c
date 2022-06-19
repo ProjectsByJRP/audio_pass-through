@@ -6,11 +6,11 @@
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
+  * USER CODE END. Other portions of this file, whether
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2022 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -81,10 +81,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END USART1_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_USART1_CLK_ENABLE();
-  
-    /**USART1 GPIO Configuration    
+
+    /**USART1 GPIO Configuration
     PA10     ------> USART1_RX
-    PA9     ------> USART1_TX 
+    PA9     ------> USART1_TX
     */
     GPIO_InitStruct.Pin = VCP_RX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -116,10 +116,10 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END USART1_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_USART1_CLK_DISABLE();
-  
-    /**USART1 GPIO Configuration    
+
+    /**USART1 GPIO Configuration
     PA10     ------> USART1_RX
-    PA9     ------> USART1_TX 
+    PA9     ------> USART1_TX
     */
     HAL_GPIO_DeInit(GPIOA, VCP_RX_Pin|VCP_TX_Pin);
 
@@ -127,7 +127,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
   /* USER CODE END USART1_MspDeInit 1 */
   }
-} 
+}
 
 /* USER CODE BEGIN 1 */
 
