@@ -77,7 +77,7 @@ typedef enum
 
 #define RECORD_BUFFER_SIZE  4096
 
-SAI_HandleTypeDef haudio_out_sai, haudio_in_sai;
+extern  SAI_HandleTypeDef haudio_out_sai, haudio_in_sai;
 
 volatile uint32_t  audio_rec_buffer_state;
 volatile uint32_t  audio_tx_buffer_state = 0;
@@ -101,7 +101,6 @@ static void CopyBuffer(int16_t *pbuffer1, int16_t *pbuffer2, uint16_t BufferSize
 static uint8_t BSP_AUDIO_IN_OUT_Init(uint32_t AudioFreq);
 static uint8_t _BSP_AUDIO_OUT_Play(uint16_t* pBuffer, uint32_t Size);
 void get_max_val(int16_t *buf, uint32_t size, int16_t amp[]);
-void AUDIO_LOOPBACK(void);
 static void SAI_AUDIO_IN_MspInit(SAI_HandleTypeDef *hsai, void *Params);
 static void SAIx_In_Init(uint32_t AudioFreq);
 static void SAIx_In_DeInit(void);
@@ -151,7 +150,66 @@ int main(void)
   BSP_AUDIO_IN_Init(BSP_AUDIO_FREQUENCY_44K, DEFAULT_AUDIO_IN_BIT_RESOLUTION, DEFAULT_AUDIO_IN_CHANNEL_NBR);
   BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_HEADPHONE, 50, BSP_AUDIO_FREQUENCY_44K);
 
-  AUDIO_LOOPBACK();
+    {
+        int16_t amp[4];
+
+        /* Initialize Audio Recorder with 4 channels to be used */
+        if (BSP_AUDIO_IN_OUT_Init(BSP_AUDIO_FREQUENCY_44K) == AUDIO_OK)
+        {
+            printf("Audio I/O initialization OK\r\n");
+        } else {
+            printf("Audio I/O initialization failed.\r\n");
+        }
+
+        /* Start Recording */
+        HAL_StatusTypeDef res = HAL_SAI_Receive_DMA(&haudio_in_sai, (uint8_t*)RecordBuffer, RECORD_BUFFER_SIZE);
+        if (HAL_OK == res)
+        {
+            printf("SAI receive begin OK\r\n");
+        } else {
+            printf("SAI receive error: %d\r\n", res);
+        }
+
+        printf("Copying Record buffer to Playback buffer\r\n");
+
+        /* Play the recorded buffer */
+        if (_BSP_AUDIO_OUT_Play((uint16_t *) &PlaybackBuffer[0], RECORD_BUFFER_SIZE) == AUDIO_OK)
+        {
+            printf("Audio output OK\r\n");
+        } else {
+            printf("Audio output error\r\n");
+        }
+        printf("\r\n");
+
+        audio_rec_buffer_state = BUFFER_OFFSET_NONE;
+        while (1)
+        {
+            BSP_LED_Toggle(LED_GREEN);
+            /* 1st or 2nd half of the record buffer ready for being copied
+            to the Playback buffer */
+            if (audio_rec_buffer_state != BUFFER_OFFSET_NONE)
+            {
+                /* Copy half of the record buffer to the playback buffer */
+                if (audio_rec_buffer_state == BUFFER_OFFSET_HALF)
+                {
+                    get_max_val(RecordBuffer, RECORD_BUFFER_SIZE / 2, amp);
+                    CopyBuffer(&PlaybackBuffer[0], &RecordBuffer[0], RECORD_BUFFER_SIZE / 2);
+                } else {
+                    /* if(audio_rec_buffer_state == BUFFER_OFFSET_FULL)*/
+                    CopyBuffer(&PlaybackBuffer[RECORD_BUFFER_SIZE / 2],
+                               &RecordBuffer[RECORD_BUFFER_SIZE / 2],
+                               RECORD_BUFFER_SIZE / 2);
+                }
+                /* Wait for next data */
+                audio_rec_buffer_state = BUFFER_OFFSET_NONE;
+            }
+            if (audio_tx_buffer_state)
+            {
+                audio_tx_buffer_state = 0;
+            }
+        } // end while(1)
+    } // end AUDIO_LOOPBACK
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -616,66 +674,6 @@ static uint8_t BSP_AUDIO_IN_OUT_Init(uint32_t AudioFreq)
      }
 
 
-
-void AUDIO_LOOPBACK(void)
-     {
-         int16_t amp[4];
-
-         /* Initialize Audio Recorder with 4 channels to be used */
-         if (BSP_AUDIO_IN_OUT_Init(BSP_AUDIO_FREQUENCY_44K) == AUDIO_OK)
-         {
-        	 printf("Audio I/O initialization OK\r\n");
-         } else {
-        	 printf("Audio I/O initialization failed.\r\n");
-         }
-
-         /* Start Recording */
-         HAL_StatusTypeDef res = HAL_SAI_Receive_DMA(&haudio_in_sai, (uint8_t*)RecordBuffer, RECORD_BUFFER_SIZE);
-         if (HAL_OK == res)
-         {
-        	 printf("SAI receive begin OK\r\n");
-         } else {
-             printf("SAI receive error: %d\r\n", res);
-         }
-
-         printf("Copying Record buffer to Playback buffer\r\n");
-
-         /* Play the recorded buffer */
-         if (_BSP_AUDIO_OUT_Play((uint16_t *) &PlaybackBuffer[0], RECORD_BUFFER_SIZE) == AUDIO_OK)
-         {
-        	 printf("Audio output OK\r\n");
-         } else {
-        	 printf("Audio output error\r\n");
-     	 }
-         printf("\r\n");
-
-         audio_rec_buffer_state = BUFFER_OFFSET_NONE;
-         while (1)
-         {
-             /* 1st or 2nd half of the record buffer ready for being copied
-             to the Playback buffer */
-             if (audio_rec_buffer_state != BUFFER_OFFSET_NONE)
-             {
-                 /* Copy half of the record buffer to the playback buffer */
-                 if (audio_rec_buffer_state == BUFFER_OFFSET_HALF)
-                 {
-                     get_max_val(RecordBuffer, RECORD_BUFFER_SIZE / 2, amp);
-                     CopyBuffer(&PlaybackBuffer[0], &RecordBuffer[0], RECORD_BUFFER_SIZE / 2);
-                 } else {
-                	 /* if(audio_rec_buffer_state == BUFFER_OFFSET_FULL)*/
-                     CopyBuffer(&PlaybackBuffer[RECORD_BUFFER_SIZE / 2],
-                    		      &RecordBuffer[RECORD_BUFFER_SIZE / 2],
-								                RECORD_BUFFER_SIZE / 2);
-                 }
-                 /* Wait for next data */
-                 audio_rec_buffer_state = BUFFER_OFFSET_NONE;
-             }
-             if (audio_tx_buffer_state)
-             {
-                 audio_tx_buffer_state = 0;
-             }
-         } // end while(1)
-     } // end AUDIO_LOOPBACK
 
 /* USER CODE END 4 */
 
