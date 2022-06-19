@@ -50,7 +50,7 @@
  **/
 
 
-#include "stm32f769i_discovery_audio.h"
+#include "../Drivers/BSP/Components/wm8994/wm8994.h"
 #include <string.h>
 
 /* USER CODE END Includes */
@@ -68,8 +68,7 @@
 #endif /* __GNUC__ */
 
 
-typedef enum
-{
+typedef enum {
     BUFFER_OFFSET_NONE = 0,
     BUFFER_OFFSET_HALF = 1,
     BUFFER_OFFSET_FULL = 2,
@@ -77,18 +76,13 @@ typedef enum
 
 #define RECORD_BUFFER_SIZE  4096
 
-extern  SAI_HandleTypeDef haudio_out_sai, haudio_in_sai;
-
-volatile uint32_t  audio_rec_buffer_state;
-volatile uint32_t  audio_tx_buffer_state = 0;
+volatile uint32_t audio_rec_buffer_state;
 
 /* Buffer containing the PCM samples coming from the microphone */
 int16_t RecordBuffer[RECORD_BUFFER_SIZE];
 
 /* Buffer used to stream the recorded PCM samples towards the audio codec. */
 int16_t PlaybackBuffer[RECORD_BUFFER_SIZE];
-
-static AUDIO_DrvTypeDef  *audio_drv;
 
 /* USER CODE END PV */
 
@@ -98,12 +92,10 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 static void CopyBuffer(int16_t *pbuffer1, int16_t *pbuffer2, uint16_t BufferSize);
-static uint8_t BSP_AUDIO_IN_OUT_Init(uint32_t AudioFreq);
-static uint8_t _BSP_AUDIO_OUT_Play(uint16_t* pBuffer, uint32_t Size);
+
+void BSP_AUDIO_OUT_ClockConfig(uint32_t AudioFreq);
+
 void get_max_val(int16_t *buf, uint32_t size, int16_t amp[]);
-static void SAI_AUDIO_IN_MspInit(SAI_HandleTypeDef *hsai, void *Params);
-static void SAIx_In_Init(uint32_t AudioFreq);
-static void SAIx_In_DeInit(void);
 
 /* USER CODE END PFP */
 
@@ -142,24 +134,40 @@ int main(void)
   MX_SAI1_Init();
 
   /* USER CODE BEGIN 2 */
-  printf("Connected to STM32F769I-Discovery USART 1\r\n");
-  printf("\r\n");
+    printf("Connected to STM32F769I-Discovery USART 1\r\n");
+    printf("\r\n");
 
     {
         int16_t amp[4];
 
+        /* PLL clock is set depending by the AudioFreq (44.1khz vs 48khz groups) */
+        BSP_AUDIO_OUT_ClockConfig(SAI_AUDIO_FREQUENCY_44K);
+        HAL_SAI_Init(&hsai_BlockA1); // Update internal MCO dividers to match new clock
+        HAL_SAI_Init(&hsai_BlockB1); // Update internal MCO dividers to match new clock
+
+
+        /* Enable SAI peripheral to generate MCLK (required to start talking to codec?) */
+        __HAL_SAI_ENABLE(&hsai_BlockA1);
+
         /* Initialize Audio Recorder with 4 channels to be used */
-        if (BSP_AUDIO_IN_OUT_Init(BSP_AUDIO_FREQUENCY_44K) == AUDIO_OK)
-        {
+        if ((wm8994_drv.ReadID(AUDIO_I2C_ADDRESS)) == WM8994_ID) {
+            /* Reset the Codec Registers */
+            wm8994_drv.Reset(AUDIO_I2C_ADDRESS);
+            /* Initialize the audio driver structure */
             printf("Audio I/O initialization OK\r\n");
         } else {
             printf("Audio I/O initialization failed.\r\n");
+            Error_Handler();
         }
 
+        /* Initialize the codec internal registers */
+        wm8994_drv.Init(AUDIO_I2C_ADDRESS,
+                        INPUT_DEVICE_INPUT_LINE_1/*INPUT_DEVICE_ANALOG_MIC*/ | OUTPUT_DEVICE_HEADPHONE, 100, SAI_AUDIO_FREQUENCY_44K);
+
+
         /* Start Recording */
-        HAL_StatusTypeDef res = HAL_SAI_Receive_DMA(&haudio_in_sai, (uint8_t*)RecordBuffer, RECORD_BUFFER_SIZE);
-        if (HAL_OK == res)
-        {
+        HAL_StatusTypeDef res = HAL_SAI_Receive_DMA(&hsai_BlockB1, (uint8_t *) RecordBuffer, RECORD_BUFFER_SIZE);
+        if (HAL_OK == res) {
             printf("SAI receive begin OK\r\n");
         } else {
             printf("SAI receive error: %d\r\n", res);
@@ -168,26 +176,28 @@ int main(void)
         printf("Copying Record buffer to Playback buffer\r\n");
 
         /* Play the recorded buffer */
-        if (_BSP_AUDIO_OUT_Play((uint16_t *) &PlaybackBuffer[0], RECORD_BUFFER_SIZE) == AUDIO_OK)
-        {
-            printf("Audio output OK\r\n");
+        if (wm8994_drv.Play(AUDIO_I2C_ADDRESS, (uint16_t *) PlaybackBuffer, RECORD_BUFFER_SIZE) != 0) {
+            printf("Codec play begin error\r\n");
+            Error_Handler();
         } else {
-            printf("Audio output error\r\n");
+            if (HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t *)PlaybackBuffer, RECORD_BUFFER_SIZE) != HAL_OK) {
+                printf("SAI transmit begin error\r\n");
+                Error_Handler();
+            }
+            printf("SAI transmit begin OK\r\n");
         }
+
         printf("\r\n");
 
         audio_rec_buffer_state = BUFFER_OFFSET_NONE;
-        while (1)
-        {
+        while (1) {
             HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
 
             /* 1st or 2nd half of the record buffer ready for being copied
             to the Playback buffer */
-            if (audio_rec_buffer_state != BUFFER_OFFSET_NONE)
-            {
+            if (audio_rec_buffer_state != BUFFER_OFFSET_NONE) {
                 /* Copy half of the record buffer to the playback buffer */
-                if (audio_rec_buffer_state == BUFFER_OFFSET_HALF)
-                {
+                if (audio_rec_buffer_state == BUFFER_OFFSET_HALF) {
                     get_max_val(RecordBuffer, RECORD_BUFFER_SIZE / 2, amp);
                     CopyBuffer(&PlaybackBuffer[0], &RecordBuffer[0], RECORD_BUFFER_SIZE / 2);
                 } else {
@@ -199,10 +209,6 @@ int main(void)
                 /* Wait for next data */
                 audio_rec_buffer_state = BUFFER_OFFSET_NONE;
             }
-            if (audio_tx_buffer_state)
-            {
-                audio_tx_buffer_state = 0;
-            }
         } // end while(1)
     } // end AUDIO_LOOPBACK
 
@@ -210,13 +216,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+    while (1) {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
 
-  }
+    }
   /* USER CODE END 3 */
 
 }
@@ -301,97 +306,118 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-     /**
-       * @brief  Retargets the C library printf function to the USART.
-       * @param  None
-       * @retval None
-       */
-     PUTCHAR_PROTOTYPE
-     {
-       /* Place your implementation of fputc here */
-       /* e.g. write a character to the USART2 and Loop until the end of transmission */
-       HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+PUTCHAR_PROTOTYPE {
+    /* Place your implementation of fputc here */
+    /* e.g. write a character to the USART2 and Loop until the end of transmission */
+    HAL_UART_Transmit(&huart1, (uint8_t *) &ch, 1, 0xFFFF);
 
-       return ch;
-     }
+    return ch;
+}
+
+/**
+  * @brief  Clock Config.
+  * @param  hsai: might be required to set audio peripheral predivider if any.
+  * @param  AudioFreq: Audio frequency used to play the audio stream.
+  * @param  Params
+  * @note   This API is called by BSP_AUDIO_OUT_Init() and BSP_AUDIO_OUT_SetFrequency()
+  *         Being __weak it can be overwritten by the application
+  * @retval None
+  */
+void BSP_AUDIO_OUT_ClockConfig(uint32_t AudioFreq) {
+    RCC_PeriphCLKInitTypeDef rcc_ex_clk_init_struct;
+
+    HAL_RCCEx_GetPeriphCLKConfig(&rcc_ex_clk_init_struct);
+
+    /* Set the PLL configuration according to the audio frequency */
+    if ((AudioFreq == SAI_AUDIO_FREQUENCY_11K) || (AudioFreq == SAI_AUDIO_FREQUENCY_22K) ||
+        (AudioFreq == SAI_AUDIO_FREQUENCY_44K)) {
+        /* Configure PLLSAI prescalers */
+        /* PLLSAI_VCO: VCO_429M
+        SAI_CLK(first level) = PLLSAI_VCO/PLLSAIQ = 429/2 = 214.5 Mhz
+        SAI_CLK_x = SAI_CLK(first level)/PLLSAIDIVQ = 214.5/19 = 11.289 Mhz */
+        rcc_ex_clk_init_struct.PeriphClockSelection = RCC_PERIPHCLK_SAI1;
+        rcc_ex_clk_init_struct.Sai1ClockSelection = RCC_SAI1CLKSOURCE_PLLI2S;
+        rcc_ex_clk_init_struct.PLLI2S.PLLI2SN = 429;
+        rcc_ex_clk_init_struct.PLLI2S.PLLI2SQ = 2;
+        rcc_ex_clk_init_struct.PLLI2SDivQ = 19;
+
+        HAL_RCCEx_PeriphCLKConfig(&rcc_ex_clk_init_struct);
+
+    } else /* AUDIO_FREQUENCY_8K, AUDIO_FREQUENCY_16K, AUDIO_FREQUENCY_48K, AUDIO_FREQUENCY_96K */
+    {
+        /* SAI clock config
+        PLLSAI_VCO: VCO_344M
+        SAI_CLK(first level) = PLLSAI_VCO/PLLSAIQ = 344/7 = 49.142 Mhz
+        SAI_CLK_x = SAI_CLK(first level)/PLLSAIDIVQ = 49.142/1 = 49.142 Mhz */
+        rcc_ex_clk_init_struct.PeriphClockSelection = RCC_PERIPHCLK_SAI1;
+        rcc_ex_clk_init_struct.Sai1ClockSelection = RCC_SAI1CLKSOURCE_PLLI2S;
+        rcc_ex_clk_init_struct.PLLI2S.PLLI2SN = 344;
+        rcc_ex_clk_init_struct.PLLI2S.PLLI2SQ = 7;
+        rcc_ex_clk_init_struct.PLLI2SDivQ = 1;
+
+        HAL_RCCEx_PeriphCLKConfig(&rcc_ex_clk_init_struct);
+    }
+}
+
+/*
+  * get maximum value of the buffer. VU meter, perhaps?
+  */
+void get_max_val(int16_t *buf, uint32_t size, int16_t amp[]) {
+    int16_t maxval[4] = {-32768, -32768, -32768, -32768};
+    uint32_t idx;
+    for (idx = 0; idx < size; idx += 4) {
+        if (buf[idx] > maxval[0])
+            maxval[0] = buf[idx];
+        if (buf[idx + 1] > maxval[1])
+            maxval[1] = buf[idx + 1];
+        if (buf[idx + 2] > maxval[2])
+            maxval[2] = buf[idx + 2];
+        if (buf[idx + 3] > maxval[3])
+            maxval[3] = buf[idx + 3];
+    }
+    memcpy(amp, maxval, sizeof(maxval));
+}
+
+/*
+ * Cop the contents of the Record buffer to the
+ * Playback buffer
+ *
+ * If you wanted to hook into the signal and do some
+ * signal processing, here is a place where you have
+ * both buffers available
+ *
+ */
+static void CopyBuffer(int16_t *pbuffer1, int16_t *pbuffer2, uint16_t BufferSize) {
+    uint32_t i = 0;
+    for (i = 0; i < BufferSize; i++) {
+        pbuffer1[i] = pbuffer2[i];
+    }
+}
+
+/**
+  * @brief Manages the DMA Transfer complete interrupt.
+  * @param None
+  * @retval None
+  */
+void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai) {
+    audio_rec_buffer_state = BUFFER_OFFSET_FULL;
+}
 
 
-     /* ISR Handlers */
-     void DMA2_Stream4_IRQHandler(void)
-     {
-      HAL_DMA_IRQHandler(haudio_in_sai.hdmarx);
-     }
+/**
+  * @brief  Manages the DMA Half Transfer complete interrupt.
+  * @param  None
+  * @retval None
+  */
+void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai) {
+    audio_rec_buffer_state = BUFFER_OFFSET_HALF;
 
-     void DMA2_Stream1_IRQHandler(void)
-     {
-      HAL_DMA_IRQHandler(haudio_out_sai.hdmatx);
-     }
-
-
-     /*
-      * get maximum value of the buffer. VU meter, perhaps?
-      */
-     void get_max_val(int16_t *buf, uint32_t size, int16_t amp[])
-     {
-         int16_t maxval[4] = { -32768, -32768, -32768, -32768};
-         uint32_t idx;
-         for (idx = 0 ; idx < size ; idx += 4) {
-             if (buf[idx] > maxval[0])
-                 maxval[0] = buf[idx];
-             if (buf[idx + 1] > maxval[1])
-                 maxval[1] = buf[idx + 1];
-             if (buf[idx + 2] > maxval[2])
-                 maxval[2] = buf[idx + 2];
-             if (buf[idx + 3] > maxval[3])
-                 maxval[3] = buf[idx + 3];
-         }
-         memcpy(amp, maxval, sizeof(maxval));
-     }
-
-     /*
-      * Cop the contents of the Record buffer to the
-      * Playback buffer
-      *
-      * If you wanted to hook into the signal and do some
-      * signal processing, here is a place where you have
-      * both buffers available
-      *
-      */
-     static void CopyBuffer(int16_t *pbuffer1, int16_t *pbuffer2, uint16_t BufferSize)
-     {
-         uint32_t i = 0;
-         for (i = 0; i < BufferSize; i++)
-         {
-             pbuffer1[i] = pbuffer2[i];
-         }
-     }
-
-     void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
-     {
-         audio_tx_buffer_state = 1;
-     }
-
-
-     /**
-       * @brief Manages the DMA Transfer complete interrupt.
-       * @param None
-       * @retval None
-       */
-     void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai)
-     {
-         audio_rec_buffer_state = BUFFER_OFFSET_FULL;
-     }
-
-
-     /**
-       * @brief  Manages the DMA Half Transfer complete interrupt.
-       * @param  None
-       * @retval None
-       */
-     void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai)
-     {
-         audio_rec_buffer_state = BUFFER_OFFSET_HALF;
-     }
+}
 
 
 /**
@@ -399,13 +425,12 @@ void SystemClock_Config(void)
   * @param  hsai: SAI handle
   * @retval None
   */
-void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai)
-{
-    if(hsai->Instance == AUDIO_OUT_SAIx)
+void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai) {
+    //if(hsai->Instance == AUDIO_OUT_SAIx)
     {
 //  BSP_AUDIO_OUT_Error_CallBack();
     }
-    else
+    //else
     {
         /* This function is called when an Interrupt due to transfer error on or peripheral
            error occurs. */
@@ -428,227 +453,6 @@ void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai)
     }
 }
 
-
- /**
-  * @brief  Starts playing audio stream from a data buffer for a determined size.
-  * @param  pBuffer: Pointer to the buffer
-  * @param  Size: Number of audio data BYTES.
-  * @retval AUDIO_OK if correct communication, else wrong communication
-  */
-     static void SAIx_In_Init(uint32_t AudioFreq)
-     {
-         /* Initialize SAI1 block A in MASTER TX */
-         /* Initialize the haudio_out_sai Instance parameter */
-         haudio_out_sai.Instance = AUDIO_OUT_SAIx;
-
-         /* Disable SAI peripheral to allow access to SAI internal registers */
-         __HAL_SAI_DISABLE(&haudio_out_sai);
-
-         /* Configure SAI_Block_x */
-         haudio_out_sai.Init.MonoStereoMode = SAI_STEREOMODE;
-         haudio_out_sai.Init.AudioFrequency = AudioFreq;
-         haudio_out_sai.Init.AudioMode      = SAI_MODEMASTER_TX;
-         haudio_out_sai.Init.NoDivider      = SAI_MASTERDIVIDER_ENABLE;
-         haudio_out_sai.Init.Protocol       = SAI_FREE_PROTOCOL;
-         haudio_out_sai.Init.DataSize       = SAI_DATASIZE_16;
-         haudio_out_sai.Init.FirstBit       = SAI_FIRSTBIT_MSB;
-         haudio_out_sai.Init.ClockStrobing  = SAI_CLOCKSTROBING_FALLINGEDGE;
-         haudio_out_sai.Init.Synchro        = SAI_ASYNCHRONOUS;
-         haudio_out_sai.Init.OutputDrive    = SAI_OUTPUTDRIVE_ENABLE;
-         haudio_out_sai.Init.FIFOThreshold  = SAI_FIFOTHRESHOLD_1QF;
-         haudio_out_sai.Init.SynchroExt     = SAI_SYNCEXT_DISABLE;
-         haudio_out_sai.Init.CompandingMode = SAI_NOCOMPANDING;
-         haudio_out_sai.Init.TriState       = SAI_OUTPUT_NOTRELEASED;
-         haudio_out_sai.Init.Mckdiv         = 0;
-
-         /* Configure SAI_Block_x Frame */
-         haudio_out_sai.FrameInit.FrameLength       = 64;
-         haudio_out_sai.FrameInit.ActiveFrameLength = 32;
-         haudio_out_sai.FrameInit.FSDefinition      = SAI_FS_CHANNEL_IDENTIFICATION;
-         haudio_out_sai.FrameInit.FSPolarity        = SAI_FS_ACTIVE_LOW;
-         haudio_out_sai.FrameInit.FSOffset          = SAI_FS_BEFOREFIRSTBIT;
-
-         /* Configure SAI Block_x Slot */
-         haudio_out_sai.SlotInit.FirstBitOffset = 0;
-         haudio_out_sai.SlotInit.SlotSize       = SAI_SLOTSIZE_DATASIZE;
-         haudio_out_sai.SlotInit.SlotNumber     = 4;
-         haudio_out_sai.SlotInit.SlotActive     = CODEC_AUDIOFRAME_SLOT_0123;
-
-         HAL_SAI_Init(&haudio_out_sai);
-
-
-
-         /* Initialize SAI1 block B in SLAVE RX synchronous from SAI1 block A */
-         /* Initialize the haudio_in_sai Instance parameter */
-         haudio_in_sai.Instance = AUDIO_IN_SAIx;
-
-         /* Disable SAI peripheral to allow access to SAI internal registers */
-         __HAL_SAI_DISABLE(&haudio_in_sai);
-
-         /* Configure SAI_Block_x */
-         haudio_in_sai.Init.MonoStereoMode = SAI_STEREOMODE;
-         haudio_in_sai.Init.AudioFrequency = AudioFreq;
-         haudio_in_sai.Init.AudioMode      = SAI_MODESLAVE_RX;
-         haudio_in_sai.Init.NoDivider      = SAI_MASTERDIVIDER_ENABLE;
-         haudio_in_sai.Init.Protocol       = SAI_FREE_PROTOCOL;
-         haudio_in_sai.Init.DataSize       = SAI_DATASIZE_16;
-         haudio_in_sai.Init.FirstBit       = SAI_FIRSTBIT_MSB;
-         haudio_in_sai.Init.ClockStrobing  = SAI_CLOCKSTROBING_FALLINGEDGE;
-         haudio_in_sai.Init.Synchro        = SAI_SYNCHRONOUS;
-         haudio_in_sai.Init.OutputDrive    = SAI_OUTPUTDRIVE_DISABLE;
-         haudio_in_sai.Init.FIFOThreshold  = SAI_FIFOTHRESHOLD_1QF;
-         haudio_in_sai.Init.SynchroExt     = SAI_SYNCEXT_DISABLE;
-         haudio_in_sai.Init.CompandingMode = SAI_NOCOMPANDING;
-         haudio_in_sai.Init.TriState       = SAI_OUTPUT_RELEASED;
-         haudio_in_sai.Init.Mckdiv         = 0;
-
-         /* Configure SAI_Block_x Frame */
-         haudio_in_sai.FrameInit.FrameLength       = 64;
-         haudio_in_sai.FrameInit.ActiveFrameLength = 32;
-         haudio_in_sai.FrameInit.FSDefinition      = SAI_FS_CHANNEL_IDENTIFICATION;
-         haudio_in_sai.FrameInit.FSPolarity        = SAI_FS_ACTIVE_LOW;
-         haudio_in_sai.FrameInit.FSOffset          = SAI_FS_BEFOREFIRSTBIT;
-
-         /* Configure SAI Block_x Slot */
-         haudio_in_sai.SlotInit.FirstBitOffset = 0;
-         haudio_in_sai.SlotInit.SlotSize       = SAI_SLOTSIZE_DATASIZE;
-         haudio_in_sai.SlotInit.SlotNumber     = 4;
-         haudio_in_sai.SlotInit.SlotActive     = CODEC_AUDIOFRAME_SLOT_0123;
-
-         HAL_SAI_Init(&haudio_in_sai);
-
-         /* Enable SAI peripheral */
-         __HAL_SAI_ENABLE(&haudio_in_sai);
-
-         /* Enable SAI peripheral to generate MCLK */
-         __HAL_SAI_ENABLE(&haudio_out_sai);
-     }
-
-
-     /**
-       * @brief  Deinitializes the output Audio Codec audio interface (SAI).
-       * @retval None
-       */
-     static void SAIx_In_DeInit(void)
-     {
-         /* Initialize the haudio_in_sai Instance parameter */
-         haudio_in_sai.Instance = AUDIO_IN_SAIx;
-         haudio_out_sai.Instance = AUDIO_OUT_SAIx;
-         /* Disable SAI peripheral */
-         __HAL_SAI_DISABLE(&haudio_in_sai);
-
-         HAL_SAI_DeInit(&haudio_in_sai);
-         HAL_SAI_DeInit(&haudio_out_sai);
-     }
-
-
-     /**
-       * @brief  Initializes SAI Audio IN MSP.
-       * @param  hsai: SAI handle
-       * @retval None
-       */
-     static void SAI_AUDIO_IN_MspInit(SAI_HandleTypeDef *hsai, void *Params)
-     {
-         static DMA_HandleTypeDef hdma_sai_rx;
-
-         if (hsai->Instance == AUDIO_IN_SAIx)
-         {
-             /* Configure the hdma_sai_rx handle parameters */
-             hdma_sai_rx.Init.Channel             = AUDIO_IN_SAIx_DMAx_CHANNEL;
-             hdma_sai_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-             hdma_sai_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-             hdma_sai_rx.Init.MemInc              = DMA_MINC_ENABLE;
-             hdma_sai_rx.Init.PeriphDataAlignment = AUDIO_IN_SAIx_DMAx_PERIPH_DATA_SIZE;
-             hdma_sai_rx.Init.MemDataAlignment    = AUDIO_IN_SAIx_DMAx_MEM_DATA_SIZE;
-             hdma_sai_rx.Init.Mode                = DMA_CIRCULAR;
-             hdma_sai_rx.Init.Priority            = DMA_PRIORITY_HIGH;
-             hdma_sai_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-             hdma_sai_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-             hdma_sai_rx.Init.MemBurst            = DMA_MBURST_SINGLE;
-             hdma_sai_rx.Init.PeriphBurst         = DMA_MBURST_SINGLE;
-
-             hdma_sai_rx.Instance = AUDIO_IN_SAIx_DMAx_STREAM;
-
-             /* Associate the DMA handle */
-             __HAL_LINKDMA(hsai, hdmarx, hdma_sai_rx);
-
-             /* Deinitialize the Stream for new transfer */
-             HAL_DMA_DeInit(&hdma_sai_rx);
-
-             /* Configure the DMA Stream */
-             HAL_DMA_Init(&hdma_sai_rx);
-         }
-
-         /* SAI DMA IRQ Channel configuration */
-         HAL_NVIC_SetPriority(AUDIO_IN_SAIx_DMAx_IRQ, AUDIO_IN_IRQ_PREPRIO, 0);
-         HAL_NVIC_EnableIRQ(AUDIO_IN_SAIx_DMAx_IRQ);
-
-     }
-
-
-
-static uint8_t BSP_AUDIO_IN_OUT_Init(uint32_t AudioFreq)
-     {
-         uint8_t ret = AUDIO_ERROR;
-
-         /* Disable SAI */
-         SAIx_In_DeInit();
-
-         /* PLL clock is set depending by the AudioFreq (44.1khz vs 48khz groups) */
-         BSP_AUDIO_OUT_ClockConfig(&haudio_in_sai, AudioFreq, NULL);
-         haudio_out_sai.Instance = AUDIO_OUT_SAIx;
-         haudio_in_sai.Instance = AUDIO_IN_SAIx;
-         if (HAL_SAI_GetState(&haudio_in_sai) == HAL_SAI_STATE_RESET)
-         {
-             BSP_AUDIO_OUT_MspInit(&haudio_out_sai, NULL);
-             SAI_AUDIO_IN_MspInit(&haudio_in_sai, NULL);
-         }
-
-
-         SAIx_In_Init(AudioFreq); // inclu déja le code de SAIx_Out_Init()
-
-
-         if ((wm8994_drv.ReadID(AUDIO_I2C_ADDRESS)) == WM8994_ID)
-         {
-             /* Reset the Codec Registers */
-             wm8994_drv.Reset(AUDIO_I2C_ADDRESS);
-             /* Initialize the audio driver structure */
-             audio_drv = &wm8994_drv;
-             ret = AUDIO_OK;
-         } else {
-             ret = AUDIO_ERROR;
-         }
-
-         if (ret == AUDIO_OK)
-         {
-             /* Initialize the codec internal registers */
-             audio_drv->Init(AUDIO_I2C_ADDRESS, INPUT_DEVICE_ANALOG_MIC | OUTPUT_DEVICE_HEADPHONE , 100, AudioFreq);
-         }
-
-         /* Return AUDIO_OK when all operations are correctly done */
-         return ret;
-     }
-
-
-     static uint8_t _BSP_AUDIO_OUT_Play(uint16_t* pBuffer, uint32_t Size)
-     {
-         /* Call the audio Codec Play function */
-         if (audio_drv->Play(AUDIO_I2C_ADDRESS, (uint16_t *)pBuffer, Size) != 0)
-         {
-             return AUDIO_ERROR;
-         }
-         else
-         {
-             /* Update the Media layer and enable it for play */
-             //if (HAL_SAI_Transmit_DMA(&haudio_out_sai, (uint8_t*) pBuffer, DMA_MAX(Size / AUDIODATA_SIZE)) !=  HAL_OK)
-             if (HAL_SAI_Transmit_DMA(&haudio_out_sai, (uint8_t*) pBuffer, Size) !=  HAL_OK)
-                 return AUDIO_ERROR;
-             return AUDIO_OK;
-         }
-     }
-
-
-
 /* USER CODE END 4 */
 
 /**
@@ -659,10 +463,9 @@ static uint8_t BSP_AUDIO_IN_OUT_Init(uint32_t AudioFreq)
 void _Error_Handler(char * file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  while(1) 
-  {
-  }
+    /* User can add his own implementation to report the HAL error return state */
+    while (1) {
+    }
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -678,8 +481,8 @@ void _Error_Handler(char * file, int line)
 void assert_failed(uint8_t* file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    /* User can add his own implementation to report the file name and line number,
+      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 
 }
