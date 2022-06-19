@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/audio_pass-through.iml" filepath="$PROJECT_DIR$/.idea/audio_pass-through.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/audio_loopback.iml" filepath="$PROJECT_DIR$/.idea/audio_loopback.iml" />
     </modules>
   </component>
 </project>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="audio_loopback" targetName="audio_loopback.elf" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f6ef50a7-8938-4f73-a78c-14063006e67c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/audio_loopback.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cproject" beforeDir="false" afterPath="$PROJECT_DIR$/.cproject" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/audio_pass-through.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/OCD_audio_pass_through.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mxproject" beforeDir="false" afterPath="$PROJECT_DIR$/.mxproject" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.project" beforeDir="false" afterPath="$PROJECT_DIR$/.project" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.settings/language.settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists_template.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists_template.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Device/ST/STM32F7xx/Include/stm32f769xx.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Device/ST/STM32F7xx/Include/stm32f7xx.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Device/ST/STM32F7xx/Include/system_stm32f7xx.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/arm_common_tables.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/arm_const_structs.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/arm_math.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/cmsis_armcc.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/CMSIS/Include/cmsis_armcc.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/cmsis_armcc_V6.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/cmsis_gcc.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/CMSIS/Include/cmsis_gcc.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm0.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm0.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm0plus.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm0plus.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm3.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm3.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm4.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm4.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm7.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cm7.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cmFunc.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cmInstr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_cmSimd.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_sc000.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_sc000.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_sc300.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/CMSIS/Include/core_sc300.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_cortex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_def.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_dma.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_dma_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_flash.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_flash_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_gpio.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_gpio_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_i2c.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_i2c_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_rcc.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_rcc_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_sai.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_sai_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_tim.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_tim_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_sai.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_sai_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Inc/dma.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Inc/gpio.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Inc/i2c.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Inc/main.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Inc/sai.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Inc/stm32f7xx_hal_conf.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Inc/stm32f7xx_it.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Inc/usart.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/STM32F769I-DISCO.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/STM32F769NIHx_FLASH.ld" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/dma.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/gpio.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/i2c.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/main.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/sai.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/stm32f7xx_hal_msp.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/stm32f7xx_it.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/syscalls.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/system_stm32f7xx.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/usart.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/audio_pass-through.ioc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/startup/startup_stm32f769xx.s" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2AoNWUlAOQTKKZxldXdtNlQZHoi" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "/Users/raydudu/STM32Cube/Proj_H7/audio_loopback/audio_loopback.ioc"
+  }
+}]]></component>
+  <component name="RunManager" selected="OpenOCD Download &amp; Run.OCD audio_loopback">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="audio_loopback.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="audio_loopback" TARGET_NAME="audio_loopback.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="audio_loopback" RUN_TARGET_NAME="audio_loopback.elf">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="OCD audio_loopback" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="audio_loopback" TARGET_NAME="audio_loopback.elf" CONFIG_NAME="Debug" version="1" RUN_TARGET_PROJECT_NAME="audio_loopback" RUN_TARGET_NAME="audio_loopback.elf">
+      <openocd version="1" gdb-port="3333" telnet-port="4444" board-config="$PROJECT_DIR$/stm32h735g-dk.cfg" reset-type="INIT" download-type="UPDATED_ONLY">
+        <debugger kind="GDB" isBundled="true" />
+      </openocd>
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.audio_loopback.elf" />
+      <item itemvalue="OpenOCD Download &amp; Run.OCD audio_loopback" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f6ef50a7-8938-4f73-a78c-14063006e67c" name="Changes" comment="" />
+      <created>1655672009846</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1655672009846</updated>
+    </task>
+    <servers />
+  </component>
+</project>
