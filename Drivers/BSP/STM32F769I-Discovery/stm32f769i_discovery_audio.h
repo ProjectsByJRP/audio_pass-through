@@ -159,50 +159,6 @@
 #define AUDIO_IN_INT_GPIO_PORT                   GPIOJ
 #define AUDIO_IN_INT_GPIO_PIN                    GPIO_PIN_12
 #define AUDIO_IN_INT_IRQ                         EXTI15_10_IRQn
-
-/* DFSDM Configuration defines */
-#define AUDIO_DFSDMx_TOP_RIGHT_CHANNEL                  DFSDM_CHANNEL_0
-#define AUDIO_DFSDMx_TOP_LEFT_CHANNEL                   DFSDM_CHANNEL_1
-#define AUDIO_DFSDMx_BUTTOM_RIGHT_CHANNEL               DFSDM_CHANNEL_4
-#define AUDIO_DFSDMx_BUTTOM_LEFT_CHANNEL                DFSDM_CHANNEL_5
-
-#define AUDIO_DFSDMx_TOP_LEFT_FILTER                    DFSDM1_Filter0
-#define AUDIO_DFSDMx_TOP_RIGHT_FILTER                   DFSDM1_Filter1
-#define AUDIO_DFSDMx_BUTTOM_LEFT_FILTER                 DFSDM1_Filter2
-#define AUDIO_DFSDMx_BUTTOM_RIGHT_FILTER                DFSDM1_Filter3
-   
-#define AUDIO_DFSDMx_CLK_ENABLE()                       __HAL_RCC_DFSDM1_CLK_ENABLE()
-#define AUDIO_DFSDMx_CKOUT_PIN                          GPIO_PIN_3
-#define AUDIO_DFSDMx_CKOUT_DMIC_GPIO_PORT               GPIOD    
-#define AUDIO_DFSDMx_CKOUT_DMIC_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOD_CLK_ENABLE()
-#define AUDIO_DFSDMx_DMIC_DATIN1_PIN                    GPIO_PIN_3
-#define AUDIO_DFSDMx_DMIC_DATIN5_PIN                    GPIO_PIN_11   
-#define AUDIO_DFSDMx_DMIC_DATIN_GPIO_PORT               GPIOC
-#define AUDIO_DFSDMx_DMIC_DATIN_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOC_CLK_ENABLE()
-#define AUDIO_DFSDMx_DMIC_DATIN_AF                      GPIO_AF3_DFSDM1
-#define AUDIO_DFSDMx_CKOUT_AF                           GPIO_AF3_DFSDM1
-    
-/* DFSDM DMA Right and Left channels definitions */
-#define AUDIO_DFSDMx_DMAx_CLK_ENABLE()                  __HAL_RCC_DMA2_CLK_ENABLE()
-#define AUDIO_DFSDMx_DMAx_CHANNEL                       DMA_CHANNEL_8
-#define AUDIO_DFSDMx_DMAx_PERIPH_DATA_SIZE              DMA_PDATAALIGN_WORD
-#define AUDIO_DFSDMx_DMAx_MEM_DATA_SIZE                 DMA_MDATAALIGN_WORD
-
-#define AUDIO_DFSDMx_DMAx_TOP_LEFT_STREAM               DMA2_Stream0
-#define AUDIO_DFSDMx_DMAx_TOP_LEFT_IRQ                  DMA2_Stream0_IRQn   
-#define AUDIO_DFSDMx_DMAx_TOP_LEFT_IRQHandler           DMA2_Stream0_IRQHandler
-
-#define AUDIO_DFSDMx_DMAx_TOP_RIGHT_STREAM              DMA2_Stream5
-#define AUDIO_DFSDMx_DMAx_TOP_RIGHT_IRQ                 DMA2_Stream5_IRQn
-#define AUDIO_DFSDMx_DMAx_TOP_RIGHT_IRQHandler          DMA2_Stream5_IRQHandler
-
-#define AUDIO_DFSDMx_DMAx_BUTTOM_LEFT_STREAM            DMA2_Stream6
-#define AUDIO_DFSDMx_DMAx_BUTTOM_LEFT_IRQ               DMA2_Stream6_IRQn   
-#define AUDIO_DFSDMx_DMAx_BUTTOM_LEFT_IRQHandler        DMA2_Stream6_IRQHandler
-
-#define AUDIO_DFSDMx_DMAx_BUTTOM_RIGHT_STREAM           DMA2_Stream7
-#define AUDIO_DFSDMx_DMAx_BUTTOM_RIGHT_IRQ              DMA2_Stream7_IRQn
-#define AUDIO_DFSDMx_DMAx_BUTTOM_RIGHT_IRQHandler       DMA2_Stream7_IRQHandler
  
 /* Select the interrupt preemption priority and subpriority for the DMA interrupt */
 #define AUDIO_IN_IRQ_PREPRIO                ((uint32_t)0x0F)
@@ -219,54 +175,10 @@
 #define AUDIO_ERROR                         ((uint8_t)1)
 #define AUDIO_TIMEOUT                       ((uint8_t)2)
 
-/* Audio In default settings */
-#define DEFAULT_AUDIO_IN_FREQ               BSP_AUDIO_FREQUENCY_16K
-#define DEFAULT_AUDIO_IN_BIT_RESOLUTION     ((uint8_t)16)
-#define DEFAULT_AUDIO_IN_CHANNEL_NBR        ((uint8_t)2)
-#define DEFAULT_AUDIO_IN_VOLUME             ((uint16_t)64)
 
-/*------------------------------------------------------------------------------
-                            OUTPUT DEVICES definition
-------------------------------------------------------------------------------*/
-/* Alias on existing output devices to adapt for 2 headphones output */
-#define OUTPUT_DEVICE_HEADPHONE1 OUTPUT_DEVICE_HEADPHONE
-#define OUTPUT_DEVICE_HEADPHONE2 OUTPUT_DEVICE_SPEAKER /* Headphone2 is connected to Speaker output of the wm8994 */
-
-/*------------------------------------------------------------------------------
-                           INPUT DEVICES definition
-------------------------------------------------------------------------------*/
-/* MP34DT01TR digital microphone on PCB top side */
-#define INPUT_DEVICE_DIGITAL_MIC       ((uint16_t)0)
 /* Analog microphone input from 3.5 audio jack connector */    
 #define INPUT_DEVICE_ANALOG_MIC        INPUT_DEVICE_INPUT_LINE_1  
 
-/**
-  * @}
-  */
-   
-/** @defgroup STM32F769I_DISCOVERY_AUDIO_Exported_Macros STM32F769I_DISCOVERY_AUDIO Exported Macros
-  * @{
-  */
-#define DMA_MAX(x)           (((x) <= DMA_MAX_SZE)? (x):DMA_MAX_SZE)
-/**
-  * @}
-  */ 
-
-/** @defgroup STM32F769I_DISCOVERY_AUDIO_OUT_Exported_Functions STM32F769I_DISCOVERY_AUDIO_OUT Exported Functions
-  * @{
-  */
-uint8_t BSP_AUDIO_OUT_Init(uint16_t OutputDevice, uint8_t Volume, uint32_t AudioFreq);
-void    BSP_AUDIO_OUT_DeInit(void);
-uint8_t BSP_AUDIO_OUT_Play(uint16_t* pBuffer, uint32_t Size);
-void    BSP_AUDIO_OUT_ChangeBuffer(uint16_t *pData, uint16_t Size);
-uint8_t BSP_AUDIO_OUT_Pause(void);
-uint8_t BSP_AUDIO_OUT_Resume(void);
-uint8_t BSP_AUDIO_OUT_Stop(uint32_t Option);
-uint8_t BSP_AUDIO_OUT_SetVolume(uint8_t Volume);
-void    BSP_AUDIO_OUT_SetFrequency(uint32_t AudioFreq);
-void    BSP_AUDIO_OUT_SetAudioFrameSlot(uint32_t AudioFrameSlot);
-uint8_t BSP_AUDIO_OUT_SetMute(uint32_t Cmd);
-uint8_t BSP_AUDIO_OUT_SetOutputMode(uint8_t Output);
 
 /* User Callbacks: user has to implement these functions in his code if they are needed. */
 /* This function is called when the requested data has been completely transferred.*/
@@ -283,24 +195,7 @@ void    BSP_AUDIO_OUT_Error_CallBack(void);
    need to be changed for specific application needs */
 void  BSP_AUDIO_OUT_ClockConfig(SAI_HandleTypeDef *hsai, uint32_t AudioFreq, void *Params);
 void  BSP_AUDIO_OUT_MspInit(SAI_HandleTypeDef *hsai, void *Params);
-void  BSP_AUDIO_OUT_MspDeInit(SAI_HandleTypeDef *hsai, void *Params);
 
-/**
-  * @}
-  */ 
-
-/** @defgroup STM32F769I_DISCOVERY_AUDIO_IN_Exported_Functions STM32F769I_DISCOVERY_AUDIO_IN Exported Functions
-  * @{
-  */
-uint8_t BSP_AUDIO_IN_Init(uint32_t AudioFreq, uint32_t BitRes, uint32_t ChnlNbr);
-uint8_t BSP_AUDIO_IN_InitEx(uint16_t InputDevice, uint32_t AudioFreq, uint32_t BitRes, uint32_t ChnlNbr);
-uint8_t BSP_AUDIO_IN_AllocScratch (int32_t *pScratch, uint32_t size);
-uint8_t BSP_AUDIO_IN_GetChannelNumber(void);
-void    BSP_AUDIO_IN_DeInit(void);
-uint8_t BSP_AUDIO_IN_Record(uint16_t *pData, uint32_t Size);
-uint8_t BSP_AUDIO_IN_Stop(void);
-uint8_t BSP_AUDIO_IN_Pause(void);
-uint8_t BSP_AUDIO_IN_Resume(void);
 
 /* User Callbacks: user has to implement these functions in his code if they are needed. */
 /* This function should be implemented by the user application.
@@ -312,12 +207,6 @@ void    BSP_AUDIO_IN_HalfTransfer_CallBack(void);
 /* This function is called when an Interrupt due to transfer error on or peripheral
    error occurs. */
 void    BSP_AUDIO_IN_Error_CallBack(void);
-     
-/* These function can be modified in case the current settings (e.g. DMA stream)
-   need to be changed for specific application needs */
-void BSP_AUDIO_IN_ClockConfig(DFSDM_Filter_HandleTypeDef *hdfsdm_filter, uint32_t AudioFreq, void *Params);
-void BSP_AUDIO_IN_MspInit(void);
-void BSP_AUDIO_IN_MspDeInit(void);
 
 /**
   * @}

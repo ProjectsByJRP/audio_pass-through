@@ -48,25 +48,6 @@
  /* Includes ------------------------------------------------------------------*/
 #include "stm32f7xx_hal.h"
 
-/** @addtogroup BSP
-  * @{
-  */
-
-/** @addtogroup STM32F769I_DISCOVERY
-  * @{
-  */
-
-/** @defgroup STM32F769I_DISCOVERY_LOW_LEVEL STM32F769I-Discovery LOW LEVEL
-  * @{
-  */
-
-/** @defgroup STM32F769I_DISCOVERY_LOW_LEVEL_Exported_Types STM32F769I Discovery Low Level Exported Types
- * @{
- */
-
-/** 
-  * @brief  Define for STM32F769I_DISCOVERY board
-  */ 
 #if !defined (USE_STM32F769I_DISCO)
  #define USE_STM32F769I_DISCO
 #endif
@@ -82,58 +63,7 @@ typedef enum
  LED_GREEN = LED2
 } Led_TypeDef;
 
-/** @brief Button_TypeDef
-  *  STM32F769I_DISCOVERY board Buttons definitions.
-  */
-typedef enum
-{
-  BUTTON_WAKEUP = 0,
-} Button_TypeDef;
 
-#define BUTTON_USER BUTTON_WAKEUP
-
-/** @brief ButtonMode_TypeDef
-  *  STM32F769I_DISCOVERY board Buttons Modes definitions.
-  */
-typedef enum
-{
- BUTTON_MODE_GPIO = 0,
- BUTTON_MODE_EXTI = 1
-
-} ButtonMode_TypeDef;
-
-/** @addtogroup Exported_types
-  * @{
-  */ 
-typedef enum 
-{
-  PB_SET = 0, 
-  PB_RESET = !PB_SET
-} ButtonValue_TypeDef;
-
-
-/** @brief DISCO_Status_TypeDef
-  *  STM32F769I_DISCO board Status return possible values.
-  */
-typedef enum
-{
- DISCO_OK    = 0,
- DISCO_ERROR = 1
-
-} DISCO_Status_TypeDef;
-
-/**
-  * @}
-  */
-
-/** @defgroup STM32F769I_DISCOVERY_LOW_LEVEL_Exported_Constants STM32F769I Discovery Low Level Exported Constants
-  * @{
-  */
-
-
-/** @addtogroup STM32F769I_DISCOVERY_LOW_LEVEL_LED STM32F769I Discovery Low Level Led
-  * @{
-  */
 /* Always four leds for all revisions of Discovery boards */
 #define LEDn                             ((uint8_t)2)
 
@@ -143,92 +73,12 @@ typedef enum
 #define LED2_GPIO_PORT                   ((GPIO_TypeDef*)GPIOJ)
 
 #define LEDx_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOJ_CLK_ENABLE()
-#define LEDx_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOJ_CLK_DISABLE()
 
 #define LED1_PIN                         ((uint32_t)GPIO_PIN_13)
 #define LED2_PIN                         ((uint32_t)GPIO_PIN_5)
 
-/**
-  * @}
-  */
-
-/** @addtogroup STM32F769I_DISCOVERY_LOW_LEVEL_BUTTON STM32F769I Discovery Low Level Button
-  * @{
-  */
-/* Only one User/Wakeup button */
-#define BUTTONn                             ((uint8_t)1)
-
-/**
-  * @brief Wakeup push-button
-  */
-#define WAKEUP_BUTTON_PIN                   GPIO_PIN_0
-#define WAKEUP_BUTTON_GPIO_PORT             GPIOA
-#define WAKEUP_BUTTON_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOA_CLK_ENABLE()
-#define WAKEUP_BUTTON_GPIO_CLK_DISABLE()    __HAL_RCC_GPIOA_CLK_DISABLE()
-#define WAKEUP_BUTTON_EXTI_IRQn             EXTI0_IRQn
-
-/* Define the USER button as an alias of the Wakeup button */
-#define USER_BUTTON_PIN                   WAKEUP_BUTTON_PIN
-#define USER_BUTTON_GPIO_PORT             WAKEUP_BUTTON_GPIO_PORT
-#define USER_BUTTON_GPIO_CLK_ENABLE()     WAKEUP_BUTTON_GPIO_CLK_ENABLE()
-#define USER_BUTTON_GPIO_CLK_DISABLE()    WAKEUP_BUTTON_GPIO_CLK_DISABLE()
-#define USER_BUTTON_EXTI_IRQn             WAKEUP_BUTTON_EXTI_IRQn
-
-#define BUTTON_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOA_CLK_ENABLE()
-
-/**
-  * @}
-  */
-
-/**
-  * @brief USB OTG HS Over Current signal
-  */
-#define OTG_HS_OVER_CURRENT_PIN                  GPIO_PIN_4
-#define OTG_HS_OVER_CURRENT_PORT                 GPIOD
-#define OTG_HS_OVER_CURRENT_PORT_CLK_ENABLE()    __HAL_RCC_GPIOD_CLK_ENABLE()
-
-/**
-  * @brief SD-detect signal
-  */
-#define SD_DETECT_PIN                        ((uint32_t)GPIO_PIN_15)
-#define SD_DETECT_GPIO_PORT                  ((GPIO_TypeDef*)GPIOI)
-#define SD_DETECT_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOI_CLK_ENABLE()
-#define SD_DETECT_GPIO_CLK_DISABLE()         __HAL_RCC_GPIOI_CLK_DISABLE()
-#define SD_DETECT_EXTI_IRQn                  EXTI15_10_IRQn
-
-/**
-  * @brief Touch screen interrupt signal
-  */
-#define TS_INT_PIN                        ((uint32_t)GPIO_PIN_13)
-#define TS_INT_GPIO_PORT                  ((GPIO_TypeDef*)GPIOI)
-#define TS_INT_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOI_CLK_ENABLE()
-#define TS_INT_GPIO_CLK_DISABLE()         __HAL_RCC_GPIOI_CLK_DISABLE()
-#define TS_INT_EXTI_IRQn                  EXTI15_10_IRQn
-
-/**
-  * @brief TouchScreen FT6206 Slave I2C address 1
-  */
-#define TS_I2C_ADDRESS                   ((uint16_t)0x54)
-
-/**
-  * @brief TouchScreen FT6336G Slave I2C address 2
-  */
-#define TS_I2C_ADDRESS_A02               ((uint16_t)0x70)
-
-/**
-  * @brief Audio I2C Slave address
-  */
 #define AUDIO_I2C_ADDRESS                ((uint16_t)0x34)
 
-/**
-  * @brief EEPROM I2C Slave address 1
-  */
-#define EEPROM_I2C_ADDRESS_A01           ((uint16_t)0xA0)
-
-/**
-  * @brief EEPROM I2C Slave address 2
-  */
-#define EEPROM_I2C_ADDRESS_A02           ((uint16_t)0xA6)
 
 /**
   * @brief User can use this section to tailor I2C4/I2C4 instance used and associated
@@ -263,7 +113,6 @@ typedef enum
   */
 #define DISCOVERY_EXT_I2Cx                             I2C1
 #define DISCOVERY_EXT_I2Cx_CLK_ENABLE()                __HAL_RCC_I2C1_CLK_ENABLE()
-#define DISCOVERY_DMAx_CLK_ENABLE()                __HAL_RCC_DMA1_CLK_ENABLE()
 #define DISCOVERY_EXT_I2Cx_SCL_SDA_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOB_CLK_ENABLE()
 
 #define DISCOVERY_EXT_I2Cx_FORCE_RESET()               __HAL_RCC_I2C1_FORCE_RESET()
@@ -304,15 +153,11 @@ typedef enum
 /** @defgroup STM32F769I_DISCOVERY_LOW_LEVEL_Exported_Functions STM32F769I Discovery Low Level Exported Functions
   * @{
   */
-uint32_t         BSP_GetVersion(void);
 void             BSP_LED_Init(Led_TypeDef Led);
 void             BSP_LED_DeInit(Led_TypeDef Led);
 void             BSP_LED_On(Led_TypeDef Led);
 void             BSP_LED_Off(Led_TypeDef Led);
 void             BSP_LED_Toggle(Led_TypeDef Led);
-void             BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef Button_Mode);
-void             BSP_PB_DeInit(Button_TypeDef Button);
-uint32_t         BSP_PB_GetState(Button_TypeDef Button);
 
 /**
   * @}
