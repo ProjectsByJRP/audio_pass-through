@@ -41,131 +41,70 @@
 #define __WM8994_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "../Common/audio.h"
+#include <stdint.h>
+#include <sai.h>
 
-/** @addtogroup BSP
-  * @{
-  */ 
 
-/** @addtogroup Component
-  * @{
-  */ 
-  
-/** @addtogroup WM8994
-  * @{
-  */
-
-/** @defgroup WM8994_Exported_Types
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @defgroup WM8994_Exported_Constants
-  * @{
-  */ 
+#define AUDIO_I2C_ADDRESS                ((uint16_t)0x34)
 
 /******************************************************************************/
 /***************************  Codec User defines ******************************/
 /******************************************************************************/
 /* Codec output DEVICE */
-#define OUTPUT_DEVICE_SPEAKER                 ((uint16_t)0x0001)
-#define OUTPUT_DEVICE_HEADPHONE               ((uint16_t)0x0002)
-#define OUTPUT_DEVICE_BOTH                    ((uint16_t)0x0003)
-#define OUTPUT_DEVICE_AUTO                    ((uint16_t)0x0004)
-#define INPUT_DEVICE_DIGITAL_MICROPHONE_1     ((uint16_t)0x0100)
-#define INPUT_DEVICE_DIGITAL_MICROPHONE_2     ((uint16_t)0x0200)
-#define INPUT_DEVICE_INPUT_LINE_1             ((uint16_t)0x0300)
-#define INPUT_DEVICE_INPUT_LINE_2             ((uint16_t)0x0400)
-#define INPUT_DEVICE_DIGITAL_MIC1_MIC2        ((uint16_t)0x0800)
+#define CODEC_OUT_SPEAKER         0x0001U
+#define CODEC_OUT_HEADPHONE       0x0002U
+#define CODEC_OUT_BOTH            0x0004U
+#define CODEC_OUT_AUTO            0x0008U
+#define CODEC_IN_DIGITAL_MIC1     0x0100U
+#define CODEC_IN_DIGITAL_MIC2     0x0200U
+#define CODEC_IN_LINE_1           0x0400U
+#define CODEC_IN_LINE_2           0x0800U
 
 /* Volume Levels values */
-#define DEFAULT_VOLMIN                0x00
-#define DEFAULT_VOLMAX                0xFF
-#define DEFAULT_VOLSTEP               0x04
-
-#define AUDIO_PAUSE                   0
-#define AUDIO_RESUME                  1
+#define CODEC_VOLMIN                0x00
+#define CODEC_VOLMAX                0xFF
+#define CODEC_VOLSTEP               0x04
 
 /* Codec POWER DOWN modes */
-#define CODEC_PDWN_HW                 1
-#define CODEC_PDWN_SW                 2
+typedef enum  {
+    CODEC_PWDN_HW,
+    CODEC_PWDN_SW
+} codec_pwdn_t;
 
 /* MUTE commands */
-#define AUDIO_MUTE_ON                 1
-#define AUDIO_MUTE_OFF                0
+typedef enum {
+    CODEC_MUTE,
+    CODEC_UNMUTE
+} wm8994_mute_t;
 
-/* AUDIO FREQUENCY */
-#define AUDIO_FREQUENCY_192K          ((uint32_t)192000)
-#define AUDIO_FREQUENCY_96K           ((uint32_t)96000)
-#define AUDIO_FREQUENCY_48K           ((uint32_t)48000)
-#define AUDIO_FREQUENCY_44K           ((uint32_t)44100)
-#define AUDIO_FREQUENCY_32K           ((uint32_t)32000)
-#define AUDIO_FREQUENCY_22K           ((uint32_t)22050)
-#define AUDIO_FREQUENCY_16K           ((uint32_t)16000)
-#define AUDIO_FREQUENCY_11K           ((uint32_t)11025)
-#define AUDIO_FREQUENCY_8K            ((uint32_t)8000)  
+#define CODEC_VOLUME_CONVERT(Volume)        (((Volume) > 100)? 100:((uint8_t)(((Volume) * 63) / 100)))
+#define CODEC_VOLUME_IN_CONVERT(Volume)     (((Volume) >= 100)? 239:((uint8_t)(((Volume) * 240) / 100)))
 
-#define VOLUME_CONVERT(Volume)        (((Volume) > 100)? 100:((uint8_t)(((Volume) * 63) / 100)))
-#define VOLUME_IN_CONVERT(Volume)     (((Volume) >= 100)? 239:((uint8_t)(((Volume) * 240) / 100)))
+#define  CODEC_WM8994_ID    0x8994
 
-/******************************************************************************/
-/****************************** REGISTER MAPPING ******************************/
-/******************************************************************************/
-/** 
-  * @brief  WM8994 ID  
-  */  
-#define  WM8994_ID    0x8994
+#define CODEC_WM8994_CHIPID_ADDR                  0x00
 
-/**
-  * @brief Device ID Register: Reading from this register will indicate device 
-  *                            family ID 8994h
-  */
-#define WM8994_CHIPID_ADDR                  0x00
 
-/**
-  * @}
-  */ 
-
-/** @defgroup WM8994_Exported_Macros
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-/** @defgroup WM8994_Exported_Functions
-  * @{
-  */
-    
 /*------------------------------------------------------------------------------
                            Audio Codec functions 
 ------------------------------------------------------------------------------*/
 /* High Layer codec functions */
-uint32_t wm8994_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint8_t Volume, uint32_t AudioFreq);
-void     wm8994_DeInit(void);
+int wm8994_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint8_t Volume, uint32_t AudioFreq);
 uint32_t wm8994_ReadID(uint16_t DeviceAddr);
-uint32_t wm8994_Play(uint16_t DeviceAddr, uint16_t* pBuffer, uint16_t Size);
-uint32_t wm8994_Pause(uint16_t DeviceAddr);
-uint32_t wm8994_Resume(uint16_t DeviceAddr);
-uint32_t wm8994_Stop(uint16_t DeviceAddr, uint32_t Cmd);
-uint32_t wm8994_SetVolume(uint16_t DeviceAddr, uint8_t Volume);
-uint32_t wm8994_SetMute(uint16_t DeviceAddr, uint32_t Cmd);
-uint32_t wm8994_SetOutputMode(uint16_t DeviceAddr, uint8_t Output);
-uint32_t wm8994_SetFrequency(uint16_t DeviceAddr, uint32_t AudioFreq);
-uint32_t wm8994_Reset(uint16_t DeviceAddr);
+int wm8994_Play(uint16_t DeviceAddr);
+int wm8994_Pause(uint16_t DeviceAddr);
+int wm8994_Resume(uint16_t DeviceAddr);
+int wm8994_Stop(uint16_t DeviceAddr, codec_pwdn_t pwdn);
+int wm8994_SetVolume(uint16_t DeviceAddr, uint8_t Volume);
+int wm8994_SetMute(uint16_t DeviceAddr, wm8994_mute_t mute);
+int wm8994_SetOutputMode(uint16_t DeviceAddr, uint8_t Output);
+int wm8994_SetFrequency(uint16_t DeviceAddr, uint32_t AudioFreq);
+int wm8994_Reset(uint16_t DeviceAddr);
 
-/* AUDIO IO functions */
-void    AUDIO_IO_Init(void);
-void    AUDIO_IO_DeInit(void);
-void    AUDIO_IO_Write(uint8_t Addr, uint16_t Reg, uint16_t Value);
-uint8_t AUDIO_IO_Read(uint8_t Addr, uint16_t Reg);
-void    AUDIO_IO_Delay(uint32_t Delay);
-
-/* Audio driver structure */
-extern AUDIO_DrvTypeDef   wm8994_drv;
+/* CODEC IO functions */
+uint8_t CODEC_IO_Write(uint8_t Addr, uint16_t Reg, uint16_t Value);
+uint8_t CODEC_IO_Read(uint8_t Addr, uint16_t Reg);
+void CODEC_IO_Delay(uint32_t Delay);
 
 #endif /* __WM8994_H */
 
